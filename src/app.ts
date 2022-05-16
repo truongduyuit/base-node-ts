@@ -1,25 +1,25 @@
 import bodyParser from "body-parser";
 import compression from "compression";
 import MongoStore from "connect-mongo";
-import express from "express";
+import express, { Request, Response } from "express";
 import flash from "express-flash";
 import session from "express-session";
 import lusca from "lusca";
+import morgan from "morgan";
+import passport from "passport";
 import path from "path";
+import routes from "./apis/routes";
+import { MONGODB_URI, SESSION_SECRET } from "./constant/secrets";
 import { connectMongo } from "./services/mongoose";
-import { MONGODB_URI, SESSION_SECRET } from "./utils/secrets";
+import "./services/passport";
 
-// Create Express server
+/** create & configuration server */
 const app = express();
-
-// Connect Database
-connectMongo();
-
-// Express configuration
 app.set("port", process.env.PORT || 3000);
+app.use(morgan("dev"));
 app.use(compression());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
   session({
     resave: true,
@@ -28,27 +28,24 @@ app.use(
     store: new MongoStore({
       mongoUrl: MONGODB_URI,
       mongoOptions: {
-        connectTimeoutMS: 300000,
+        connectTimeoutMS: 360000,
       },
     }),
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(flash());
 app.use(lusca.xframe("SAMEORIGIN"));
 app.use(lusca.xssProtection(true));
-
-declare global {
-  namespace Express {
-    interface Request {
-      user: any;
-    }
-  }
-}
-
 app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
+app.use(express.static(path.join(__dirname, "public")));
+
+/** connect database */
+connectMongo();
 
 // app.use((req, res, next) => {
 //   // After successful login, redirect back to the intended page
@@ -59,19 +56,17 @@ app.use((req, res, next) => {
 //     !req.path.match(/^\/auth/) &&
 //     !req.path.match(/\./)
 //   ) {
-//     req.session.returnTo = req.path;
+//     // req.session.returnTo = req.path;
 //   } else if (req.user && req.path == "/account") {
-//     req.session.returnTo = req.path;
+//     // req.session.returnTo = req.path;
 //   }
 //   next();
 // });
 
-app.use(
-  express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
-);
+app.use("/api", routes);
 
-/**
- * Primary app routes.
- */
+app.use((err: any, req: Request, res: Response) => {
+  return res.status(err.statusCode || 500).json({ message: err.message });
+});
 
 export default app;

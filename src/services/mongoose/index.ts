@@ -1,6 +1,6 @@
 import bluebird from "bluebird";
 import mongoose from "mongoose";
-import { MONGODB_URI } from "../utils/secrets";
+import { DB_PASS, DB_USER, MONGODB_URI } from "../../constant/secrets";
 
 // Connect to MongoDB
 mongoose.Promise = bluebird;
@@ -8,17 +8,22 @@ mongoose.Promise = bluebird;
 export const connectMongo = () => {
   mongoose
     .connect(MONGODB_URI, {
-      autoIndex: true,
-      user: process.env.DB_USER,
-      pass: process.env.DB_PASS,
+      user: DB_USER,
+      pass: DB_PASS,
     })
     .then(() => {
-      /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
+      console.log("MongoDB connected");
     })
     .catch((err) => {
       console.log(
         `MongoDB connection error. Please make sure MongoDB is running. ${err}`
       );
-      // process.exit();
+      process.exit();
     });
+
+  const db = mongoose.connection;
+
+  db.on("error", (err: any) => console.log("MongoDB error:\n" + err));
 };
+
+export * from "./base";
