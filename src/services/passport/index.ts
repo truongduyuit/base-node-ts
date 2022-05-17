@@ -1,26 +1,29 @@
 import passport from "passport";
 import passportLocal from "passport-local";
+import { UserService } from "../../apis/user/user.services";
+import { compare } from "../bcrypt";
 
-passport.serializeUser<any, any>((req, user, done) => {
+passport.serializeUser<any, any>((req, user: any, done) => {
   done(undefined, user);
 });
 
-passport.deserializeUser(function (id, done) {
-  done(null, { name: "duy" });
+passport.deserializeUser(function (user: any, done) {
+  done(undefined, user);
 });
 
 const LocalStrategy = passportLocal.Strategy;
 
 /** Sign in using Email and Password */
 passport.use(
-  new LocalStrategy({ usernameField: "email" }, (email, password, done) => {
-    const isMatch =
-      email === "abc@gmail.com" && password === "123456" ? true : false;
-    if (isMatch) {
-      const user = { email: "abc@gmail.com" };
-      console.log("user: ", user);
-      return done(undefined, user);
+  new LocalStrategy(
+    { usernameField: "email" },
+    async (email, password, done) => {
+      const user = await UserService.getOne({ email });
+
+      if (!user || !compare(password, user.password)) return done(null, {});
+
+      user.password = undefined;
+      return done(null, user);
     }
-    return done(undefined, false, { message: "Invalid email or password." });
-  })
+  )
 );

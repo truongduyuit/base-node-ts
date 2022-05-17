@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import compression from "compression";
 import MongoStore from "connect-mongo";
-import express, { Request, Response } from "express";
+import express from "express";
 import flash from "express-flash";
 import session from "express-session";
 import lusca from "lusca";
@@ -28,7 +28,7 @@ app.use(
     store: new MongoStore({
       mongoUrl: MONGODB_URI,
       mongoOptions: {
-        connectTimeoutMS: 360000,
+        connectTimeoutMS: 60000,
       },
     }),
   })
@@ -47,26 +47,6 @@ app.use(express.static(path.join(__dirname, "public")));
 /** connect database */
 connectMongo();
 
-// app.use((req, res, next) => {
-//   // After successful login, redirect back to the intended page
-//   if (
-//     !req.user &&
-//     req.path !== "/login" &&
-//     req.path !== "/signup" &&
-//     !req.path.match(/^\/auth/) &&
-//     !req.path.match(/\./)
-//   ) {
-//     // req.session.returnTo = req.path;
-//   } else if (req.user && req.path == "/account") {
-//     // req.session.returnTo = req.path;
-//   }
-//   next();
-// });
-
 app.use("/api", routes);
-
-app.use((err: any, req: Request, res: Response) => {
-  return res.status(err.statusCode || 500).json({ message: err.message });
-});
 
 export default app;
