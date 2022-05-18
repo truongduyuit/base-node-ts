@@ -39,6 +39,8 @@
     "mongoose": "^6.3.3",
     "morgan": "^1.10.0",
     "passport": "^0.5.2",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "winston": "^3.7.2"
   },
@@ -53,6 +55,8 @@
     "@types/express-session": "^1.17.4",
     "@types/lusca": "^1.7.1",
     "@types/passport": "^1.0.7",
+    "@types/passport-facebook": "^2.1.11",
+    "@types/passport-google-oauth20": "^2.0.11",
     "@types/passport-local": "^1.0.34",
     "nodemon": "^2.0.16",
     "ts-node": "^10.7.0",

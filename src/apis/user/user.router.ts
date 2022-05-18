@@ -12,12 +12,40 @@ router.post(
 );
 
 router.get("/login", (req, res) => {
-  return sendResponse(res, { data: { login: req.isAuthenticated() } });
+  return sendResponse(res, { data: { isLogin: req.isAuthenticated() } });
 });
 
-router.post("/logout", (req, res) => {
+router.get("/logout", (req, res) => {
   req.logout();
   return sendResponse(res);
 });
+
+/** Login with Google */
+router.get(
+  "/login/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.get(
+  "/login/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req, res) => {
+    return sendResponse(res, req.user);
+  }
+);
+
+/** Login with Facebook */
+router.get(
+  "/login/facebook",
+  passport.authenticate("facebook", { scope: ["profile", "email"] })
+);
+
+router.get(
+  "/login/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  (req, res) => {
+    return sendResponse(res, req.user);
+  }
+);
 
 export default router;

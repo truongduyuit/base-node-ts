@@ -4,6 +4,22 @@ export interface IUserModel extends Document {
   _id: string;
   email: string;
   password: string;
+  profile: {
+    id: string;
+    displayName: string;
+    provider: string;
+    photos: [
+      {
+        value: string;
+      }
+    ];
+    emails: [
+      {
+        value: string;
+        verified: boolean;
+      }
+    ];
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -12,11 +28,25 @@ const schema = new mongoose.Schema(
   {
     email: {
       type: String,
-      required: true,
     },
     password: {
       type: String,
-      required: true,
+    },
+    profile: {
+      id: String,
+      displayName: String,
+      provider: String,
+      photos: [
+        {
+          value: String,
+        },
+      ],
+      emails: [
+        {
+          value: String,
+          verified: Boolean,
+        },
+      ],
     },
   },
   {

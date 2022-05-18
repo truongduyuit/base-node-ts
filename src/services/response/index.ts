@@ -11,7 +11,9 @@ import { API_ERROR, API_RESPONSE } from "../../types";
  */
 export const sendResponse = (res: Response, data?: API_RESPONSE) => {
   const { httpStatus, ...dataRes } = data;
-  return res.status(httpStatus ?? HttpCode.OK).json({
+  const status = httpStatus ? httpStatus : HttpCode.OK;
+
+  return res.status(status).json({
     success: true,
     ...dataRes,
   });
@@ -25,8 +27,9 @@ export const sendResponse = (res: Response, data?: API_RESPONSE) => {
  */
 export const sendError = (res: Response, error: API_ERROR) => {
   const { httpStatus, errorCode, message } = error;
+  const status = httpStatus ? httpStatus : HttpCode.INTERNAL_SERVER_ERROR;
 
-  return res.status(httpStatus ?? HttpCode.INTERNAL_SERVER_ERROR).json({
+  return res.status(status).json({
     message,
     success: false,
     errorCode: errorCode ?? ErrorCode.INTERNAL_SERVER_ERROR,
